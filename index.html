@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Why Should I Pick You? | Coach Shay</title>
+<style>
+:root{
+  --ink:#1d1b2f; --paper:#fbf8f2; --card:#ffffff; --accent:#e4572e; --accent2:#2a6f97;
+  --muted:#6b6880; --line:#e7e2d8; --gold:#f2a541;
+  font-size:calc(16px * var(--scale,1));
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:"Segoe UI",system-ui,-apple-system,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;background:var(--paper);color:var(--ink);min-height:100vh;display:flex;flex-direction:column}
+header{display:flex;align-items:center;gap:1rem;padding:.6rem 1.2rem;background:var(--ink);color:#fff;flex-wrap:wrap}
+header h1{font-size:1.35rem;margin:0}
+header .sub{color:#bdb8d6;font-size:.85rem}
+.spacer{flex:1}
+.btn{font:inherit;border:0;border-radius:.5rem;padding:.45rem .8rem;cursor:pointer;background:#fff;color:var(--ink);font-weight:650}
+.btn:hover{filter:brightness(.93)}
+.btn.primary{background:var(--accent);color:#fff}
+.btn.blue{background:var(--accent2);color:#fff}
+.btn.small{padding:.25rem .55rem;font-size:.85rem}
+.timer{display:flex;align-items:center;gap:.4rem}
+#clock{font-variant-numeric:tabular-nums;font-size:1.7rem;font-weight:800;min-width:4.2ch;text-align:center}
+#clock.warn{color:#ffb4a2}
+#clock.done{color:#ff6b6b;animation:blink .5s steps(2) 6}
+@keyframes blink{50%{opacity:.15}}
+.sizes{display:flex;gap:.25rem}
+.sizes .btn{padding:.25rem .5rem}
+.sizes .btn.on{background:var(--accent);color:#fff}
+
+main{flex:1;display:grid;grid-template-columns:minmax(0,1fr) 25rem;gap:1rem;padding:1rem 1.2rem}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:1rem;padding:1.1rem 1.3rem}
+
+/* Wheel view */
+#wheelView{display:flex;flex-direction:column;align-items:center;gap:1rem}
+.wheelWrap{position:relative;width:min(34rem,90%,52vh);aspect-ratio:1}
+#wheel{width:100%;height:100%;display:block}
+.pointer{position:absolute;left:50%;top:-.4rem;transform:translateX(-50%);width:0;height:0;border-left:1.1rem solid transparent;border-right:1.1rem solid transparent;border-top:2rem solid var(--ink);filter:drop-shadow(0 2px 2px rgba(0,0,0,.25))}
+.chips{display:flex;flex-wrap:wrap;gap:.4rem;justify-content:center}
+.chip{border:1px solid var(--line);background:#f4f1ea;border-radius:999px;padding:.3rem .7rem;font-size:.85rem;cursor:pointer;font-weight:600;color:var(--ink);font-family:inherit}
+.chip.taken{text-decoration:line-through;color:#aaa}
+.hint{color:var(--muted);font-size:.85rem;text-align:center}
+
+/* Job view */
+#jobView{display:none}
+.jobTop{display:flex;align-items:flex-start;gap:1rem}
+.jobTop h2{font-size:2.1rem;margin:.1rem 0 .8rem;line-height:1.15;flex:1}
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.box{border-radius:.8rem;padding:.9rem 1.1rem}
+.box h3{margin:0 0 .5rem;font-size:.85rem;text-transform:uppercase;letter-spacing:.08em}
+.box ul{margin:0;padding-left:1.2rem}
+.box li{margin:.35rem 0;font-size:1.1rem;line-height:1.35}
+.want{background:#eef5f9}
+.want h3{color:var(--accent2)}
+.stand{background:#fdf1e7}
+.stand h3{color:var(--accent)}
+.question{margin:1rem 0;padding:1.1rem 1.3rem;border-left:.4rem solid var(--ink);background:#f4f1ea;border-radius:.4rem}
+.question .label{font-size:.8rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:700}
+.question .q{font-size:1.6rem;font-weight:750;margin-top:.3rem;line-height:1.3}
+.frame{display:flex;gap:1rem;flex-wrap:wrap;font-size:1.25rem;margin-bottom:1rem}
+.frame div{flex:1;min-width:14rem;background:var(--ink);color:#fff;border-radius:.6rem;padding:.7rem 1rem}
+.frame b{color:var(--gold)}
+.follow{display:flex;align-items:center;gap:1rem;flex-wrap:wrap}
+#followText{font-size:1.35rem;font-weight:700;color:var(--accent);display:none}
+
+/* Already heard */
+aside{display:flex;flex-direction:column;gap:1rem}
+aside h2{margin:0 0 .3rem;font-size:1.15rem}
+.heardNote{color:var(--muted);font-size:.8rem;margin:0 0 .6rem}
+#heardInput{width:100%;font:inherit;font-size:1.35rem;padding:.65rem .8rem;border:2px solid var(--line);border-radius:.5rem}
+#heardInput:focus{outline:none;border-color:var(--accent)}
+#heardList{display:flex;flex-wrap:wrap;gap:.35rem;margin-top:.7rem}
+.heard{background:var(--ink);color:#fff;border-radius:.45rem;padding:.4rem .7rem;font-size:1.2rem;font-weight:600;display:flex;align-items:center;gap:.45rem}
+.heard.seed{background:var(--accent2)}
+.heardHead{display:flex;align-items:center;justify-content:space-between;gap:.5rem}
+.heardKey{font-size:.8rem;color:var(--muted);margin-top:.6rem}
+.heardKey span{display:inline-block;width:.8rem;height:.8rem;border-radius:.2rem;vertical-align:middle;margin:0 .25rem 0 .6rem}
+.heard button{background:none;border:0;color:#cfcfe0;cursor:pointer;font-size:1rem;padding:0}
+.heardCount{font-weight:800;color:var(--accent)}
+.points table{width:100%;border-collapse:collapse;font-size:.85rem}
+.points td{padding:.25rem 0;border-bottom:1px solid var(--line)}
+.points td:last-child{text-align:right;font-weight:750}
+
+/* Scoreboard */
+footer{display:grid;grid-template-columns:repeat(5,1fr);gap:.7rem;padding:0 1.2rem 1rem}
+.team{background:var(--card);border:1px solid var(--line);border-radius:.8rem;padding:.6rem .8rem;text-align:center}
+.team .name{font-weight:700;font-size:.9rem;color:var(--muted)}
+.team .score{font-size:2.2rem;font-weight:850;font-variant-numeric:tabular-nums;line-height:1.1}
+.team .row{display:flex;gap:.25rem;justify-content:center;flex-wrap:wrap}
+.team .row .btn{background:#f4f1ea;padding:.2rem .45rem;font-size:.8rem}
+.team.lead{border:2px solid var(--gold)}
+
+
+/* ---------- Pages & nav ---------- */
+nav.tabs{display:flex;gap:.3rem;padding:.5rem 1.2rem 0;background:var(--ink);flex-wrap:wrap}
+nav.tabs button{font:inherit;font-weight:700;font-size:.9rem;border:0;cursor:pointer;padding:.5rem .9rem;border-radius:.6rem .6rem 0 0;background:#2e2b45;color:#cfcbe6}
+nav.tabs button.on{background:var(--paper);color:var(--ink)}
+nav.tabs .num{display:inline-block;margin-right:.35rem;color:var(--gold)}
+.page{display:none}
+.page.on{display:block}
+#p-game.on{display:contents}
+.intro{max-width:62rem;margin:0 auto;padding:1.6rem 1.4rem 2rem}
+.kicker{font-size:.85rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--accent)}
+.intro h2{font-size:2.6rem;line-height:1.1;margin:.2rem 0 1.2rem}
+.intro p.big{font-size:1.45rem;line-height:1.5;margin:.6rem 0}
+.punch{font-size:1.9rem;font-weight:800;margin-top:1.4rem;padding:1rem 1.3rem;border:3px solid var(--ink);border-radius:.8rem;display:inline-block}
+.punch em{color:var(--accent);font-style:normal}
+.rules{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:1.2rem}
+.rule{background:var(--card);border:1px solid var(--line);border-radius:1rem;padding:1.1rem 1.2rem}
+.rule .n{font-size:2.2rem;font-weight:850;color:var(--accent);line-height:1}
+.rule h3{font-size:1.35rem;margin:.4rem 0 .5rem}
+.rule p{font-size:1.1rem;line-height:1.45;margin:.35rem 0}
+.rule .strong{font-weight:800}
+.flow{background:var(--card);border:1px solid var(--line);border-radius:1rem;padding:1.1rem 1.3rem}
+.flow h3{margin:0 0 .6rem;font-size:1.25rem}
+.flow ol{margin:0;padding-left:1.4rem}
+.flow li{font-size:1.15rem;line-height:1.45;margin:.35rem 0}
+.answer{border-radius:1rem;padding:1.1rem 1.3rem;margin:1rem 0;font-size:1.5rem;line-height:1.45}
+.answer .tag{font-size:.85rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;display:flex;justify-content:space-between}
+.answer.bad{background:#f4f1ea;color:#555}
+.answer.good{background:#fff;border:3px solid var(--accent2)}
+.answer.good .tag{color:var(--accent2)}
+.answer.good b{color:var(--accent)}
+#goodAnswer{display:none}
+.heardCols{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.heardBox{background:var(--card);border:1px solid var(--line);border-radius:1rem;padding:1.1rem 1.3rem}
+.heardBox h3{margin:0 0 .7rem;font-size:1.2rem}
+.tapHeard{font:inherit;font-size:1.2rem;font-weight:650;background:#fff;color:var(--ink);border:2px solid var(--ink);border-radius:.5rem;padding:.35rem .75rem;margin:.25rem;cursor:pointer}
+.tapHeard.crossed{background:var(--ink);color:#fff;text-decoration:line-through;text-decoration-color:var(--accent);text-decoration-thickness:3px}
+.prompts{display:grid;grid-template-columns:1fr 1fr;gap:.8rem;margin:1rem 0}
+.prompt{background:var(--card);border:1px solid var(--line);border-left:.35rem solid var(--accent2);border-radius:.6rem;padding:.8rem 1rem}
+.prompt .cat{font-size:.8rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--accent2)}
+.prompt .pq{font-size:1.2rem;line-height:1.4;margin-top:.25rem}
+.want-line{font-size:1.15rem;margin:.2rem 0 0}
+.want-line b{color:var(--accent2)}
+#classAnswer{width:100%;min-height:7rem;font:inherit;font-size:1.5rem;line-height:1.45;padding:.8rem 1rem;border:3px dashed var(--accent);border-radius:.8rem;background:#fff;resize:vertical}
+.note{display:inline-block;background:var(--gold);color:var(--ink);font-weight:800;border-radius:.4rem;padding:.2rem .6rem;font-size:.9rem}
+.navBtns{display:flex;justify-content:space-between;margin-top:1.6rem}
+@media (max-width:900px){ .rules,.heardCols,.prompts{grid-template-columns:1fr} .intro h2{font-size:2rem} }
+
+@media (max-width:900px){
+  main{grid-template-columns:1fr}
+  .cols{grid-template-columns:1fr}
+  footer{grid-template-columns:repeat(3,1fr)}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>Why Should I Pick You?</h1>
+    <div class="sub">The Final Interview Question &middot; Coach Shay</div>
+  </div>
+  <div class="spacer"></div>
+  <div class="timer">
+    <button class="btn small" data-time="180">3:00</button>
+    <button class="btn small" data-time="120">2:00 Prep</button>
+    <button class="btn small" data-time="10">0:10 Speak</button>
+    <span id="clock">--:--</span>
+    <button class="btn small" id="stopTimer">Stop</button>
+  </div>
+  <div class="sizes" id="sizes">
+    <button class="btn" data-scale="0.85">S</button>
+    <button class="btn" data-scale="1">M</button>
+    <button class="btn" data-scale="1.2">L</button>
+    <button class="btn" data-scale="1.4">XL</button>
+  </div>
+  <button class="btn small" id="newClass">New Class</button>
+</header>
+
+<nav class="tabs" id="tabs">
+  <button data-page="p-today"><span class="num">1</span>Today</button>
+  <button data-page="p-rules"><span class="num">2</span>Rules</button>
+  <button data-page="p-example"><span class="num">3</span>Example</button>
+  <button data-page="p-heard"><span class="num">4</span>Already Heard</button>
+  <button data-page="p-guided"><span class="num">5</span>Guided Job</button>
+  <button data-page="p-practice"><span class="num">6</span>Practice Job</button>
+  <button data-page="p-game"><span class="num">7</span>Game</button>
+</nav>
+
+<section class="page" id="p-today"><div class="intro">
+  <div class="kicker">Today</div>
+  <h2>Job Interview:<br>"Why Should I Pick You?"</h2>
+  <p class="big">Your Object speeches and Thank You speeches had one big problem.</p>
+  <p class="big">90% of you were thankful for your mom. Your parents love you.</p>
+  <p class="big">I wanted to learn about <b>you</b>. Instead, I was comparing parents.</p>
+  <div class="punch">Today: tell me something <em>I haven't heard.</em></div>
+</div></section>
+
+<section class="page" id="p-rules"><div class="intro">
+  <div class="kicker">The Rules</div>
+  <h2>How to get hired</h2>
+  <div class="rules">
+    <div class="rule"><div class="n">1</div><h3>Can we hear you?</h3>
+      <p>This is a <b>panel interview</b>. In real life, many people interview you at once.</p>
+      <p>Today, the class is your panel. If they can't hear you, you can't be hired.</p></div>
+    <div class="rule"><div class="n">2</div><h3>10 seconds minimum</h3>
+      <p>An elevator pitch is 30 seconds. You're lucky: you only need 10.</p>
+      <p class="strong">Under 10 seconds = you can't be hired.</p></div>
+    <div class="rule"><div class="n">3</div><h3>Something new</h3>
+      <p>If I already heard it, it doesn't count.</p>
+      <p>Your group's idea was taken? Your own idea is better? <b>Try it anyway.</b></p></div>
+  </div>
+  <div class="flow"><h3>One round</h3><ol>
+    <li><b>1 minute:</b> think and write.</li>
+    <li><b>1 minute:</b> interview your partner. Ask "Why should I pick you?" Then switch.</li>
+    <li>Each group sends <b>one applicant</b>.</li>
+    <li><b>Walk-in applicants:</b> anyone with something new can stand up and try.</li>
+    <li>Each group hires someone (not from your own group) and says <b>why</b>. Your reason must be new too.</li>
+    <li>The hired person's group becomes <b>the panel</b> next round. No prep. You ask the questions.</li>
+  </ol></div>
+</div></section>
+
+<section class="page" id="p-example"><div class="intro">
+  <div class="kicker">Example</div>
+  <h2>Job: Dog Walker</h2>
+  <div class="answer bad"><div class="tag"><span>Not hired</span><span>4 seconds</span></div>
+    "You should pick me because I like dogs. I am kind."</div>
+  <button class="btn primary" id="showGood" style="font-size:1.1rem">Show the hired answer</button>
+  <div class="answer good" id="goodAnswer"><div class="tag"><span>Hired</span><span>about 15 seconds</span></div>
+    "You should pick me because <b>I'm not scared of big dogs.</b> For example, last summer my neighbor's husky pulled me 50 meters down the street, and I never let go of the leash. After that, I walked him every day. Now he runs to me every time he sees me."</div>
+</div></section>
+
+<section class="page" id="p-heard"><div class="intro">
+  <div class="kicker">Already Heard</div>
+  <h2>All of these are banned today.</h2>
+  <div class="heardCols">
+    <div class="heardBox"><h3>From your speeches</h3>
+      <button class="tapHeard">I'm thankful for my mom</button><button class="tapHeard">my parents</button><button class="tapHeard">she loves me</button><button class="tapHeard">she cooks for me</button><button class="tapHeard">my grandmother gave it to me</button><button class="tapHeard">it's special to me</button></div>
+    <div class="heardBox"><h3>From every job interview ever</h3>
+      <button class="tapHeard">hardworking</button><button class="tapHeard">kind</button><button class="tapHeard">responsible</button><button class="tapHeard">passionate</button><button class="tapHeard">never late</button><button class="tapHeard">good teamwork</button></div>
+  </div>
+  <div class="punch" style="margin-top:1.6rem">"Yeah, I heard that already." <em>What else?</em></div>
+</div></section>
+
+<section class="page" id="p-guided"><div class="intro">
+  <div class="kicker">Guided Job &middot; Whole Class &middot; No points</div>
+  <h2>Water Park Lifeguard</h2>
+  <p class="want-line"><b>We're looking for:</b> a strong swimmer &middot; a loud, clear voice &middot; someone who sees danger before it happens</p>
+  <div class="prompts"><div class="prompt"><div class="cat">A previous job</div><div class="pq">When did you have to watch or look after someone? What happened?</div></div><div class="prompt"><div class="cat">A special experience</div><div class="pq">What is the scariest moment you have ever had in water?</div></div><div class="prompt"><div class="cat">A unique story</div><div class="pq">When did you notice something dangerous before anyone else did?</div></div><div class="prompt"><div class="cat">Something only you can do</div><div class="pq">How loud can you yell? What else can you do that most people can't?</div></div></div>
+  <p class="want-line" style="margin-bottom:.5rem"><b>Our class answer:</b> You should pick me because ___. For example, ___.</p>
+  <textarea id="classAnswer" placeholder="Build the answer together here..."></textarea>
+</div></section>
+
+<section class="page" id="p-practice"><div class="intro">
+  <div class="kicker">Practice Job &middot; Groups &middot; 3 minutes</div>
+  <h2>Tteokbokki Street Stall Helper</h2>
+  <p class="want-line"><b>We're looking for:</b> fast hands when the line is long &middot; can handle spicy and hot &middot; remembers every order</p>
+  <div class="prompts"><div class="prompt"><div class="cat">A previous job</div><div class="pq">When did you help cook, sell, or serve something?</div></div><div class="prompt"><div class="cat">A special experience</div><div class="pq">What is the spiciest thing you have ever eaten? What happened after?</div></div><div class="prompt"><div class="cat">A unique story</div><div class="pq">When did you have to do many things at the same time?</div></div><div class="prompt"><div class="cat">Something only you can do</div><div class="pq">What do you remember that other people always forget?</div></div></div>
+  <div class="frame" style="margin-top:.5rem">
+    <div><b>Claim:</b> You should pick me because ___.</div>
+    <div><b>Proof:</b> For example, ___.</div>
+  </div>
+  <span class="note">Practice round</span>
+</div></section>
+
+<section class="page" id="p-game">
+
+<main>
+  <section class="panel">
+    <div id="wheelView">
+      <div class="wheelWrap">
+        <div class="pointer"></div>
+        <canvas id="wheel"></canvas>
+      </div>
+      <button class="btn primary" id="spinBtn" style="font-size:1.3rem;padding:.6rem 2rem">Spin</button>
+      <div class="hint">Press Space to spin. Jobs that were already picked leave the wheel.</div>
+      <div class="chips" id="jobChips"></div>
+    </div>
+
+    <div id="jobView">
+      <div class="jobTop">
+        <h2 id="jobTitle"></h2>
+        <button class="btn blue" id="backBtn">Back to Wheel</button>
+      </div>
+      <div class="cols">
+        <div class="box want">
+          <h3>The company is looking for</h3>
+          <ul id="jobWant"></ul>
+        </div>
+        <div class="box stand">
+          <h3>How to stand out</h3>
+          <ul id="jobStand"></ul>
+        </div>
+      </div>
+      <div class="question">
+        <div class="label">The final question</div>
+        <div class="q">"We have a lot of great applicants. Why should I pick you?"</div>
+      </div>
+      <div class="frame">
+        <div><b>Claim:</b> You should pick me because ___.</div>
+        <div><b>Proof:</b> For example, ___.</div>
+      </div>
+      <div class="follow">
+        <button class="btn primary" id="followBtn">Surprise Follow-Up</button>
+        <span id="followText"></span>
+      </div>
+    </div>
+  </section>
+
+  <aside>
+    <div class="panel">
+      <div class="heardHead"><h2>Already Heard <span class="heardCount" id="heardCount"></span></h2>
+      <button class="btn small blue" id="softReset" title="Back to the starter list plus this job's list">Soft Reset</button></div>
+      <p class="heardNote">"Yeah, I heard that already." Type a keyword and press Enter.</p>
+      <input id="heardInput" placeholder="Add a keyword..." autocomplete="off">
+      <div id="heardList"></div>
+      <div class="heardKey"><span style="background:var(--ink);margin-left:0"></span>Starter and typed <span style="background:var(--accent2)"></span>Expected for this job</div>
+    </div>
+  </aside>
+</main>
+
+</section>
+
+
+<script>
+const JOBS = [
+  {id:"store", short:"Night Shift", title:"Convenience Store Night Shift Worker",
+   want:["Stays awake and alert at 3 a.m.","Stays calm with strange customers","Honest with money"],
+   stand:["When did you stay up really late? What kept you awake?","Have you ever handled a strange person calmly?","What would you do at 3 a.m. when the store is empty?"],
+   follow:"A customer wants to pay with 300 ten-won coins. What do you do?"},
+  {id:"triplets", short:"Babysitter", title:"Babysitter for 5-Year-Old Triplets",
+   want:["Endless patience","Can invent a game in ten seconds","Fast reflexes"],
+   stand:["Do you have a younger sibling or cousin? What's the hardest thing you survived with them?","What game could you invent with only a spoon and a sock?","What is the biggest mess you have ever cleaned up?"],
+   follow:"All three start crying at the same time. Who do you help first, and why?"},
+  {id:"taste", short:"Taste Tester", title:"School Cafeteria Taste Tester",
+   want:["A brave stomach","Honest opinions, even when they hurt","Can describe food without saying \"delicious\""],
+   stand:["What is the strangest food you have ever eaten?","Describe your favorite snack using only taste, smell, and sound.","Which school lunch would you fix first, and how?"],
+   follow:"Describe today's lunch in one sentence. \"Delicious\" and \"bad\" are banned."},
+  {id:"ride", short:"Ride Operator", title:"Theme Park Ride Operator",
+   want:["A loud, clear voice","Stays calm when people scream","Takes safety seriously"],
+   stand:["When did you make a scared person feel better?","How loud is your loudest voice? Prove it.","What would you say to someone who cuts the line?"],
+   follow:"The ride stopped at the very top. Everyone is screaming. You have the microphone. Go."},
+  {id:"penguin", short:"Penguins", title:"Penguin Caretaker at an Aquarium",
+   want:["Loves the cold","Doesn't mind smelly jobs","Notices tiny details"],
+   stand:["What is the grossest job you have ever done?","How would you tell 40 penguins apart?","What pet or animal story shows you take care of things?"],
+   follow:"One penguin stopped eating. How do you find out why?"},
+  {id:"celebrity", short:"Rude Celebrity", title:"Personal Assistant to a Very Rude Celebrity",
+   want:["Stays calm when someone is rude","Super organized","Keeps secrets"],
+   stand:["When was someone rude to you and you didn't explode?","How do you organize your bag, desk, or phone?","How can you prove you keep secrets without telling one?"],
+   follow:"The celebrity throws a coffee because it is too hot. What do you say?"},
+  {id:"idol", short:"Idol Manager", title:"K-Pop Idol Tour Manager",
+   want:["Plans a crazy schedule to the minute","Protects the idol from crowds","Keeps everyone's energy up"],
+   stand:["What is the busiest day you have ever planned?","How would you get through 500 screaming fans?","How do you cheer up a friend who is exhausted?"],
+   follow:"Your idol is 10 minutes late for a live show. What do you do right now?"},
+  {id:"haunted", short:"Haunted House", title:"Haunted House Actor",
+   want:["Great acting","Not afraid of the dark","Stays in character, even when people laugh"],
+   stand:["What is the scariest sound you can make?","When did you have to keep a straight face?","What scares you, and how would you use it on visitors?"],
+   follow:"Scare me. Right now. You have five seconds."},
+  {id:"weather", short:"Weather TV", title:"TV Weather Presenter",
+   want:["A clear voice on live TV","Makes boring news interesting","Stays calm when wrong"],
+   stand:["How would you describe rain without saying \"rain\"?","When did you make a boring thing sound exciting?","When were you wrong, and how did you handle it?"],
+   follow:"You said \"sunny all day.\" It is raining now. You are live. Explain."},
+  {id:"assistant", short:"Teacher's Helper", title:"Middle School English Teacher's Assistant",
+   want:["Makes boring things fun","Knows when students are making excuses","Patient with shy students"],
+   stand:["What boring thing would you turn into a game?","What is the best excuse you have ever heard? How did you know it was fake?","How would you help a shy student speak up?"],
+   follow:"A student says her dog ate her homework. She doesn't have a dog. What do you say?"}
+];
+const DEFAULT_HEARD = ["hardworking","kind","responsible","passionate","never late","good teamwork","I work hard","I like people","my mom","my parents"];
+const SEEDS = {
+  store:["I stay up late","I'm good with money","I like snacks","I'm not scared"],
+  triplets:["I like kids","I have a little brother","I have a little sister","I'm patient"],
+  taste:["I like food","I eat everything","I'm not picky","I like school lunch"],
+  ride:["I like rides","I'm not scared","I have a loud voice","I like amusement parks"],
+  penguin:["I like penguins","I like animals","penguins are cute","I like the cold"],
+  celebrity:["I'm calm","I'm organized","I like celebrities","I keep secrets"],
+  idol:["I like K-pop","I'm a big fan","I'm organized","I have a lot of energy"],
+  haunted:["I'm not scared","I like horror movies","I'm good at acting","I like the dark"],
+  weather:["I have a clear voice","I'm good at speaking","I like weather","I watch the news"],
+  assistant:["I like English","I like teaching","I help my friends","I'm patient"]
+};
+const COLORS = ["#e4572e","#2a6f97","#f2a541","#4c9f70","#8e5ea2","#d64f7f","#3b8ea5","#c97b2a","#5a6acf","#2f8f83"];
+const GROUPS = 5;
+
+const store = {
+  get(k,d){ try{ const v = localStorage.getItem("wspy-"+k); return v ? JSON.parse(v) : d; }catch(e){ return d; } },
+  set(k,v){ try{ localStorage.setItem("wspy-"+k, JSON.stringify(v)); }catch(e){} }
+};
+
+let spun   = [];
+let heard  = DEFAULT_HEARD.slice();
+let currentJob = null;
+let rot = 0, spinning = false;
+
+const $ = id => document.getElementById(id);
+const canvas = $("wheel");
+
+/* ---------- Size ---------- */
+function setScale(s){
+  document.documentElement.style.setProperty("--scale", s);
+  document.querySelectorAll("#sizes .btn").forEach(b => b.classList.toggle("on", b.dataset.scale == s));
+  store.set("scale", s);
+  setTimeout(drawWheel, 50);
+}
+document.querySelectorAll("#sizes .btn").forEach(b => b.onclick = () => setScale(b.dataset.scale));
+setScale(store.get("scale", "1"));
+
+/* ---------- Wheel ---------- */
+const remaining = () => JOBS.filter(j => !spun.includes(j.id));
+
+function drawWheel(){
+  const dpr = window.devicePixelRatio || 1;
+  const size = canvas.clientWidth;
+  if(!size) return;
+  if(canvas.width !== Math.round(size*dpr)){ canvas.width = Math.round(size*dpr); canvas.height = Math.round(size*dpr); }
+  const ctx = canvas.getContext("2d");
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  ctx.clearRect(0,0,size,size);
+  const cx = size/2, cy = size/2, r = size/2 - 6;
+  const list = remaining();
+  if(!list.length){
+    ctx.fillStyle = "#e7e2d8"; ctx.beginPath(); ctx.arc(cx,cy,r,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle = "#6b6880"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
+    ctx.font = `700 ${size/16}px system-ui, sans-serif`;
+    ctx.fillText("All positions filled", cx, cy);
+    return;
+  }
+  const seg = Math.PI*2 / list.length;
+  list.forEach((j,i) => {
+    const a0 = rot + i*seg, a1 = a0 + seg;
+    ctx.beginPath(); ctx.moveTo(cx,cy); ctx.arc(cx,cy,r,a0,a1); ctx.closePath();
+    ctx.fillStyle = COLORS[JOBS.indexOf(j) % COLORS.length]; ctx.fill();
+    ctx.strokeStyle = "#fff"; ctx.lineWidth = 3; ctx.stroke();
+    ctx.save(); ctx.translate(cx,cy); ctx.rotate(a0 + seg/2);
+    ctx.textAlign = "right"; ctx.textBaseline = "middle"; ctx.fillStyle = "#fff";
+    ctx.font = `700 ${Math.max(12, size/24)}px system-ui, sans-serif`;
+    ctx.fillText(j.short, r - 16, 0);
+    ctx.restore();
+  });
+  ctx.beginPath(); ctx.arc(cx,cy,size*0.07,0,Math.PI*2); ctx.fillStyle = "#1d1b2f"; ctx.fill();
+  ctx.lineWidth = 4; ctx.strokeStyle = "#fff"; ctx.stroke();
+}
+
+function spin(){
+  const list = remaining();
+  if(spinning || !list.length) return;
+  spinning = true;
+  const start = rot;
+  const delta = Math.PI*2*(5 + Math.floor(Math.random()*3)) + Math.random()*Math.PI*2;
+  const dur = 4200, t0 = performance.now();
+  function step(t){
+    const p = Math.min(1, (t - t0)/dur);
+    rot = start + delta*(1 - Math.pow(1-p, 4));
+    drawWheel();
+    if(p < 1){ requestAnimationFrame(step); return; }
+    spinning = false;
+    rot = rot % (Math.PI*2);
+    const seg = Math.PI*2 / list.length;
+    const a = ((-Math.PI/2 - rot) % (Math.PI*2) + Math.PI*2) % (Math.PI*2);
+    const pick = list[Math.floor(a/seg) % list.length];
+    setTimeout(() => showJob(pick), 600);
+  }
+  requestAnimationFrame(step);
+}
+$("spinBtn").onclick = spin;
+
+function renderChips(){
+  $("jobChips").innerHTML = "";
+  JOBS.forEach(j => {
+    const b = document.createElement("button");
+    b.className = "chip" + (spun.includes(j.id) ? " taken" : "");
+    b.textContent = j.title;
+    b.onclick = () => showJob(j);
+    $("jobChips").appendChild(b);
+  });
+}
+
+/* ---------- Job card ---------- */
+function showJob(j){
+  if(!spun.includes(j.id)){ spun.push(j.id); store.set("spun", spun); }
+  currentJob = j;
+  (SEEDS[j.id] || []).forEach(w => { if(!heard.some(h => h.toLowerCase() === w.toLowerCase())) heard.push(w); });
+  store.set("heard", heard); renderHeard();
+  $("jobTitle").textContent = j.title;
+  $("jobWant").innerHTML = j.want.map(x => `<li>${x}</li>`).join("");
+  $("jobStand").innerHTML = j.stand.map(x => `<li>${x}</li>`).join("");
+  $("followText").textContent = j.follow;
+  $("followText").style.display = "none";
+  $("followBtn").style.display = "";
+  $("wheelView").style.display = "none";
+  $("jobView").style.display = "block";
+}
+$("followBtn").onclick = () => { $("followText").style.display = "inline"; $("followBtn").style.display = "none"; };
+function backToWheel(){
+  $("jobView").style.display = "none";
+  $("wheelView").style.display = "flex";
+  renderChips(); drawWheel();
+}
+$("backBtn").onclick = backToWheel;
+
+/* ---------- Already Heard ---------- */
+function renderHeard(){
+  $("heardList").innerHTML = "";
+  heard.forEach((w,i) => {
+    const s = document.createElement("span");
+    const seeds = currentJob ? (SEEDS[currentJob.id] || []).map(x => x.toLowerCase()) : [];
+    s.className = "heard" + (seeds.includes(w.toLowerCase()) ? " seed" : "");
+    s.append(w);
+    const x = document.createElement("button");
+    x.textContent = "x"; x.title = "Remove";
+    x.onclick = () => { heard.splice(i,1); store.set("heard", heard); renderHeard(); };
+    s.appendChild(x);
+    $("heardList").appendChild(s);
+  });
+  $("heardCount").textContent = heard.length;
+}
+$("softReset").onclick = () => {
+  heard = DEFAULT_HEARD.slice();
+  if(currentJob) (SEEDS[currentJob.id] || []).forEach(w => { if(!heard.includes(w)) heard.push(w); });
+  store.set("heard", heard); renderHeard();
+};
+document.querySelectorAll(".tapHeard").forEach(b => b.onclick = () => b.classList.toggle("crossed"));
+$("heardInput").addEventListener("keydown", e => {
+  if(e.key !== "Enter") return;
+  e.target.value.split(",").map(s => s.trim()).filter(Boolean).forEach(w => {
+    if(!heard.some(h => h.toLowerCase() === w.toLowerCase())) heard.push(w);
+  });
+  e.target.value = "";
+  store.set("heard", heard); renderHeard();
+});
+
+/* ---------- Timer ---------- */
+let tEnd = 0, tInt = null;
+const fmt = s => Math.floor(s/60) + ":" + String(s%60).padStart(2,"0");
+function beep(){
+  try{
+    const ac = new (window.AudioContext || window.webkitAudioContext)();
+    [0, .25, .5].forEach(off => {
+      const o = ac.createOscillator(), g = ac.createGain();
+      o.frequency.value = 880; o.connect(g); g.connect(ac.destination);
+      g.gain.setValueAtTime(.25, ac.currentTime + off);
+      g.gain.exponentialRampToValueAtTime(.001, ac.currentTime + off + .2);
+      o.start(ac.currentTime + off); o.stop(ac.currentTime + off + .22);
+    });
+  }catch(e){}
+}
+function tick(){
+  const left = Math.max(0, Math.ceil((tEnd - Date.now())/1000));
+  $("clock").textContent = fmt(left);
+  $("clock").className = left === 0 ? "done" : left <= 10 ? "warn" : "";
+  if(left === 0){ clearInterval(tInt); tInt = null; beep(); }
+}
+document.querySelectorAll("[data-time]").forEach(b => b.onclick = () => {
+  clearInterval(tInt); tEnd = Date.now() + Number(b.dataset.time)*1000; tick(); tInt = setInterval(tick, 200);
+});
+$("stopTimer").onclick = () => { clearInterval(tInt); tInt = null; $("clock").textContent = "--:--"; $("clock").className = ""; };
+
+/* ---------- New class ---------- */
+$("newClass").onclick = () => {
+  const nb = $("newClass");
+  if(!nb.dataset.armed){
+    nb.dataset.armed = "1"; nb.textContent = "Tap again to reset"; nb.style.background = "#e4572e"; nb.style.color = "#fff";
+    clearTimeout(nb._t);
+    nb._t = setTimeout(() => { delete nb.dataset.armed; nb.textContent = "New Class"; nb.style.background = ""; nb.style.color = ""; }, 3000);
+    return;
+  }
+  clearTimeout(nb._t); delete nb.dataset.armed; nb.textContent = "New Class"; nb.style.background = ""; nb.style.color = "";
+  spun = []; heard = DEFAULT_HEARD.slice(); currentJob = null;
+  store.set("spun", spun); store.set("heard", heard);
+  store.set("classAnswer", ""); $("classAnswer").value = "";
+  renderHeard(); backToWheel(); document.querySelectorAll(".tapHeard").forEach(b => b.classList.remove("crossed"));
+};
+
+
+/* ---------- Tabs ---------- */
+const TAB_IDS = [...document.querySelectorAll("#tabs button")].map(b => b.dataset.page);
+function showPage(id){
+  document.querySelectorAll(".page").forEach(p => p.classList.toggle("on", p.id === id));
+  document.querySelectorAll("#tabs button").forEach(b => b.classList.toggle("on", b.dataset.page === id));
+  store.set("page", id);
+  if(id === "p-game") setTimeout(drawWheel, 30);
+  window.scrollTo(0,0);
+}
+document.querySelectorAll("#tabs button").forEach(b => b.onclick = () => showPage(b.dataset.page));
+$("showGood").onclick = () => { $("goodAnswer").style.display = "block"; $("showGood").style.display = "none"; };
+$("classAnswer").value = "";
+$("classAnswer").addEventListener("input", e => store.set("classAnswer", e.target.value));
+
+/* ---------- Keys ---------- */
+document.addEventListener("keydown", e => {
+  const tag = document.activeElement && document.activeElement.tagName;
+  if(tag === "INPUT" || tag === "TEXTAREA") return;
+  const cur = TAB_IDS.indexOf(store.get("page", "p-today"));
+  if(e.key === "ArrowRight" && cur < TAB_IDS.length - 1){ showPage(TAB_IDS[cur+1]); return; }
+  if(e.key === "ArrowLeft" && cur > 0){ showPage(TAB_IDS[cur-1]); return; }
+  const onGame = store.get("page") === "p-game";
+  if(onGame && e.code === "Space" && $("wheelView").style.display !== "none"){ e.preventDefault(); spin(); }
+  if(onGame && e.key === "Escape") backToWheel();
+});
+
+window.addEventListener("resize", drawWheel);
+renderChips(); renderHeard(); showPage("p-today");
+</script>
+</body>
+</html>
